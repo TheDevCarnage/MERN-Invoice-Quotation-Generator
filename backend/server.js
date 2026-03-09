@@ -3,6 +3,8 @@ import cookieParser from "cookie-parser"
 import "dotenv/config"
 import express from "express"
 import morgan from "morgan"
+import { morganMiddleware, systemLogs } from "./utils/logger.js"
+
 
 const app = express()
 
@@ -14,6 +16,7 @@ app.use(express.json())
 // INFO: extended: false means we can't pass nested obj.
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(morganMiddleware)
 
 app.get("/api/v1/test", (req, res)=>{
     res.json({
@@ -27,4 +30,5 @@ app.listen(PORT, ()=>{
     console.log(
         `${chalk.green.bold("✅")} 🚀 Server running in ${chalk.greenBright.bold(process.env.NODE_ENV)} mode on ${chalk.blueBright.bold(process.env.PORT)}`
     )
+    systemLogs.info(`server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`)
 })
