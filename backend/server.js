@@ -3,6 +3,9 @@ import cookieParser from "cookie-parser"
 import "dotenv/config"
 import express from "express"
 import morgan from "morgan"
+import mongoSanitize from "express-mongo-sanitize"
+
+import connectionToDB  from "./config/connectDB.js"
 import { morganMiddleware, systemLogs } from "./utils/logger.js"
 
 
@@ -16,6 +19,7 @@ app.use(express.json())
 // INFO: extended: false means we can't pass nested obj.
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(mongoSanitize())
 app.use(morganMiddleware)
 
 app.get("/api/v1/test", (req, res)=>{
@@ -26,9 +30,14 @@ app.get("/api/v1/test", (req, res)=>{
 
 const PORT = process.env.PORT || 1997
 
-app.listen(PORT, ()=>{
+function startServer(){
+    app.listen(PORT, async ()=>{
+    await connectionToDB()
     console.log(
         `${chalk.green.bold("✅")} 🚀 Server running in ${chalk.greenBright.bold(process.env.NODE_ENV)} mode on ${chalk.blueBright.bold(process.env.PORT)}`
     )
     systemLogs.info(`server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`)
 })
+}
+
+startServer();
