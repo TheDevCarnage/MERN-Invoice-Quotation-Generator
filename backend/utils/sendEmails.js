@@ -1,0 +1,30 @@
+import "dotenv/config"; 
+import fs from "fs";
+import handlebars from "handlebars";
+import path from "path"; 
+import { fileURLToPath } from "url";
+import transporter from "../helpers/emailTransport.js"; 
+import { systemLogs } from "./logger.js";
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = fileURLToPath(__filename)
+
+const sendEmail = async (email, subject, payload, template)=>{
+    try{
+        const sourceDirectory = fs.readFileSync(
+            path.join(__dirname, template), "utf-8"
+        )
+        const compiledTemplate = handlebars.compile(sourceDirectory) 
+        const emailOptions = {
+            from: process.env.SENDER_EMAIL, 
+            to: email, 
+            subject: subject,
+            html: compiledTemplate(payload),
+        }
+        await transporter.sendEmail(emailOptions)
+    } catch(error){
+        systemLogs.error(`Email not sent: ${error}`)
+    }
+}
+
+export default sendEmail;
