@@ -7,7 +7,7 @@ import mongoSanitize from "express-mongo-sanitize"
 
 import connectionToDB  from "./config/connectDB.js"
 import { morganMiddleware, systemLogs } from "./utils/logger.js"
-
+import { errorHandler, notFound} from "./middleware/errorMiddleware.js"
 
 const app = express()
 
@@ -27,6 +27,9 @@ app.get("/api/v1/test", (req, res)=>{
         Hi: "Hey, Welcome to the Invoice Web App"
     })
 })
+
+app.use(notFound)
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 1997
 
